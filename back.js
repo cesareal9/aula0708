@@ -1,37 +1,55 @@
-const prompt = require("prompt-sync")({ sigint: true });
+const prompt = require('prompt-sync')({ sigint: true });
 
-let Livros = [];
-let ultimoID = 1;
+let livros = [];
+let ultimoID = 4;
 
 const modelo = (ID) => {
-    let Livro = prompt("Nome do Livro: ");
-    let autor = prompt("Nome do autor: ");
-    let pagina = parseInt(prompt("Número de paginas: "));
-    let ano = parseInt(prompt("Ano de criação: "));
-    let genero = prompt("qual é o genero do livro: ");
+    let title = prompt('titulo do Livro: ');
+    let author = prompt('Nome do autor: ');
+    let year = parseInt(prompt('ano de lançamento: '));
+    let genre = prompt('Genero do livro: ');
+    let yearNewVersions = [];
 
-    if (Livro != "" && autor  != "" && !isNaN(pagina) && genero != "" && !isNaN(ano)) { 
-        let livro  
+    let op = prompt('esse livro teve novas versões? ');
+
+    if (op == 'sim') {
+        while (true) {
+            let versions = Number(prompt("em que ano foram lançadas ? (Caso tenha finalizado, digite 'fim') "));
+
+            if (isNaN(versions)) {
+                op = 'nao';
+                break;
+            } else {
+                yearNewVersions.push(versions);
+            }
+        }
+    }
+
+    if (title != '' && author != '' && !isNaN(year) && year >= 0 && year <= 2100 && genre != '') {
+        let livro;
         if (ID == undefined) {
-                livro = {
+            livro = {
                 ID: ultimoID,
-                Livro,
-                autor,
-                pagina,
-                genero,
+                title,
+                author,
+                year,
+                genre,
+                yearNewVersions,
             };
-            ultimoID++
+            ultimoID++;
         } else {
             livro = {
-                Livro,
-                autor,
-                pagina,
-                genero,
+                ID,
+                title,
+                author,
+                year,
+                genre,
+                yearNewVersions,
             };
         }
         return livro;
-    }else {
-        console.log("dados invalidos");
+    } else {
+        console.log('dados invalidos');
     }
 };
 
@@ -40,44 +58,49 @@ const adicionarLivro = () => {
     if (livro === undefined) {
         return;
     } else {
-        Livros.push(livro);
-        console.log("Livro adicionado");
-    } 
+        livros.push(livro);
+        console.log('Livro adicionado');
+    }
 };
 
-const listarLivro = () => {
-    if (Livros.length === 0) {
-        console.log("Não possui nenhum livro registrado!");
+const listarLivros = () => {
+    if (livros.length === 0) {
+        console.log('Não possui nenhum livro registrado!');
         return false;
     } else {
-        Livros.forEach((livro) => {
+        livros.forEach((livro) => {
             console.log(
-                `ID: ${livro.ID}
-        Nome do Livro: ${livro.Livro} 
-        Autor do Livro ${livro.aut} 
-        Número de paginas: ${livro.pagina}
-        Genero do livro: ${livro.genero}`
+                `
+            ID: ${livro.ID}.
+            Titulo: ${livro.title}, 
+            Autor: ${livro.author}, 
+            Ano de Lançamento: ${livro.year}
+            Genero: ${livro.genre}`
             );
+
+            livro.yearNewVersions.forEach((versao, indice) => {
+                console.log(`Revisão: ${indice + 1}: ${versao}`);
+            });
         });
     }
     return true;
 };
 
 const atualizarLivro = () => {
-    if (listarLivro()) {
-        const ID = prompt("Qual ID da livro que deseja editar: ");
+    if (listarLivros()) {
+        const ID = prompt('Qual ID do livro que deseja editar: ');
 
         if (ID > 0 && ID != undefined) {
-            let livroEditado = modelo(ID);
+            let LivroEditado = modelo(ID);
 
-            if (livroEditado === undefined) {
+            if (LivroEditado === undefined) {
                 return;
             } else {
-                Livros[ID] = livroEditado;
-                console.log("Livro Atualizada!");
+                livros[ID] = LivroEditado;
+                console.log('Livro Atualizado!');
             }
         } else {
-            console.log("ID inexistente");
+            console.log('ID inexistente');
         }
     } else {
         return;
@@ -85,49 +108,69 @@ const atualizarLivro = () => {
 };
 
 const deletarLivro = () => {
-    if (!listarLivro()) {
+    if (!listarLivros()) {
         return;
     }
 
-    const ID = prompt("Qual ID deseja remover: ");
+    const ID = prompt('Qual ID deseja remover: ');
 
-    Livros.forEach((livro, indice) => {
+    livros.forEach((livro, indice) => {
         if (livro.ID == ID) {
-            Livros.splice(indice, 1);
-            console.log("Livro removido!");
+            livros.splice(indice, 1);
+            console.log('Livro removido!');
         }
     });
 };
 
-const results =livros.filter((livro) => livro[key] == value); 
-    
+const findLivro = () => {
+    console.log(`
+    1 - Titulo
+    2- Autor
+    3- Ano
+    4- Genero`);
+
+    let op = Number(prompt('o que gostaria de procurar?:'));
+
+    let Value;
+    let key;
+
+    switch (op) {
+        case 1:
+            key = 'title';
+            Value = prompt('qual titulo deseja procurar?');
+            break;
+        case 2:
+            key = 'author';
+            Value = prompt('qual o author deseja procurar? ');
+            break;
+        case 3:
+            key = 'genre';
+            Value = prompt('qual o genero que deseja procurar? ');
+            break;
+        default:
+            console.log('opção invalida');
+            return;
+    }
+    const results = livros.filter((livro) => livro[key] == Value);
+
     if (results.length > 0) {
         results.forEach((livro) => {
             console.log(
-                ÌD:${livro.id},
-                Titulo: $l{livro.title},
+                `ID: ${livro.ID},
+                Titulo: ${livro.title},
                 Autor: ${livro.author},
-                lançamento: ${livro.year},
-                Genero:
-            )
-        })
+                Ano de Lançamento: ${livro.year}
+                Genero: ${livro.genre}
+                `
+            );
+        });
     }
-
-    switch (livro) {
-        case 1:
-            
-            break;
-    
-        default:
-            break;
-    }
-
-funcoes = {
-    adicionarLivro
-,
-    listarLivro,
-    atualizarLivro,
-    deletarLivro,
 };
 
-module.exports = funcoes;
+module.exports = {
+    adicionarLivro,
+    listarLivros,
+    atualizarLivro,
+    deletarLivro,
+    findLivro,
+};
